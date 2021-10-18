@@ -3,6 +3,7 @@ from flask_bootstrap import Bootstrap
 from app.forms import LoginForm
 import unittest
 from app import create_app
+from app.firestore_service import get_users, get_todos
 
 app = create_app()
 
@@ -35,23 +36,19 @@ def index():
 
 @app.route('/hello', methods=['GET'])
 def hello():
-    #user_ip = request.cookies.get('user_ip') #Obtenemos la cookie, pero aca la reemplazamos por variable de sesion
     user_ip = session.get('user_ip')
-    #login_form = LoginForm()
     username = session.get('username')
     context = {
         'user_ip':user_ip, 
-        'todos':todos,
-        #'login_form': login_form,
+        'todos':get_todos(user_id=username),
         'username' : username
     }
 
-    # if login_form.validate_on_submit():
-    #     username = login_form.username.data
-    #     session['username'] = username
-
-    #     flash('registrado con exito {}'.format(username))
-
-    #     return redirect(url_for('index'))
+    users = get_users()
+    for user in users:
+        print(user.id)
+        print(user.to_dict()['password'])
+    
+    
 
     return render_template('hello.html', **context)
